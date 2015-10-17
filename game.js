@@ -7,31 +7,28 @@ var player;
 var cursors;
 
 function preload() {
+  game.load.tilemap('map', 'level1.csv', null, Phaser.Tilemap.CSV);
 }
 
 function create() {
     game.stage.backgroundColor = '#2d2d2d';
 
     //map = game.add.tilemap(null,32,32,10,10);
-    map = game.add.tilemap();
+    map = game.add.tilemap('map', 32, 32);
     bmd = game.make.bitmapData(32, 64);
     
 
-    bmd.rect(0, 0, 32, 32, '#FFFFFF');
-    bmd.rect(32, 0, 32, 32,'#000000');
+    bmd.rect(0, 0, 32, 32, '#8B4513');
+    bmd.rect(0, 32, 32, 32,'#000000');
 
 
     map.addTilesetImage('tiles', bmd);
 
-    layer = map.create('level1', 40, 30, 32, 32);
+    //layer = map.create('level1', 40, 30, 32, 32);
+    layer = map.createLayer(0);
 
     map.setCollision(1);
 
-    for(var x=0; x<15; x++) {
-        map.putTile(1, x, 0, layer);
-        map.putTile(0, x, 1, layer);
-        map.putTile(1, x, 2, layer);
-    }
 
     var rect = game.add.bitmapData(16,16);
     rect.ctx.beginPath();
