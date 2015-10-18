@@ -1,9 +1,13 @@
 # lumia
-A top down PhaserJS game
+
+A top down avoidance game based in PhaserJS.
 
 ## Primary Goals
 
 - Move player sprite to exit
+- Generate enemies
+- Enemies pathfinding
+- Fog of War
 
 ## Secondary Features
 
@@ -12,3 +16,5 @@ A top down PhaserJS game
 - Upgradable weapons
 - Harder paths reward reap
 
+## Complex Goals
+- Procedural Generation
