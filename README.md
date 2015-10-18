@@ -4,17 +4,33 @@ A top down avoidance game based in PhaserJS.
 
 ## Primary Goals
 
-- Move player sprite to exit
-- Generate enemies
-- Enemies pathfinding
-- Fog of War
+- entrance/exit + winning condition
+- fog of war
+- enemy groups
+- torch meter
+- torch radius
+- torch stick (supply)
 
 ## Secondary Features
+- explosives(gasoline)
+- immolated enemies release fog of war
 
-- Explosives(gasoline)
-- Immolated enemies release fog of war
-- Upgradable weapons
-- Harder paths reward reap
+## Completed Goals
+- stage
+- player and enemy generation
+- enemy pathfinding
 
-## Complex Goals
-- Procedural Generation
+## Ideas 
+- procedural generation
+- flammabale slime (enemy)
+- skeleton (enemy)
+- torch attacks (decrease stamina)
+- lighting up torch (increase probability)
+- traps/Doors
+- raycasting
+- upgradable weapons
+- harder paths reward reap
+- food (supply)
+- running stamina (meter)
+- carrying stamine (meter)
+
