@@ -6,8 +6,6 @@ var layer;
 var player;
 var cursors;
 var pathfinder;
-var test = true;
-var pathpoints = [];
 
 function preload() {
   game.load.tilemap('map', 'level1.csv', null, Phaser.Tilemap.CSV);
@@ -40,41 +38,56 @@ function create() {
 
   var player_bmd = game.add.bitmapData(16,16);
   player_bmd.circle(8, 8, 8, "#ff0000");
-  player = game.add.sprite(32 * 14, 32 * 14, player_bmd); 
+  player = game.add.sprite(32 * 3, 32 * 3, player_bmd); 
+  player.anchor.setTo(0.5, 0.5);
   game.physics.enable(player, Phaser.Physics.ARCADE);
   player.body.setSize(16,16);
+  player.speed = 100;
   game.camera.follow(player);
 
-  var enemy_bmd = game.add.bitmapData(16, 16);
-  enemy_bmd.circle(8, 8, 8, "#008000");
-  enemy = game.add.sprite(32* 14, 32* 9, enemy_bmd);
-  game.physics.enable(enemy, Phaser.Physics.ARCADE);
-  enemy.body.setSize(16, 16);
-
-  //Group creation
-  //enemies = game.add.group();
   //var enemy_bmd = game.add.bitmapData(16, 16);
   //enemy_bmd.circle(8, 8, 8, "#008000");
-  //enemies.create(32 * 14, 64, enemy_bmd);
+  //enemy = game.add.sprite(32* 14, 32* 9, enemy_bmd);
+  //game.physics.enable(enemy, Phaser.Physics.ARCADE);
+  //enemy.body.setSize(16, 16);
+
+  //Group creation
+  enemies = game.add.group();
+  enemies.enableBody = true;
+  enemies.physicsBodyType = Phaser.Physics.ARCADE;
+  var enemy_bmd = game.add.bitmapData(16, 16);
+  enemy_bmd.circle(8, 8, 8, "#008000");
+  enemies.create(32 * 14, 32 * 9, enemy_bmd);
+  enemies.create(32 * 4, 32 * 14, enemy_bmd);
 
   cursors = game.input.keyboard.createCursorKeys();
 }
 
-function findPathTo(tilex, tiley) {
+function findPathToPlayer(enemy) {
+  var ray = new Phaser.Line(enemy.x, enemy.y, player.x, player.y);
+  var tileHits = layer.getRayCastTiles(ray, 4, true, false);
+  //if (tileHits.length > 0 && enemy.visible) {
+  if (tileHits.length > 0 ) {
+      enemy.tint = 0xffffff;
+      enemy.seePlayer = false;
+      //console.log("CANNOT SEE");
+  } else {
+      enemy.tint = 0xffaaaa;
+      enemy.seePlayer = true;
+      //console.log("CAN SEE");
+  } 
   pathfinder.setCallbackFunction(function(path) {
     path = path || [];
-    for(var i = 0, ilen= path.length; i < ilen; i++) {
-      //console.log(path[i].x, path[i].y);
-      //pathpoints[i] = new Phaser.Point(path[i].x *32 + 8, path[i].y *32 + 8);
-    }
     if(path.length > 1) {
-      game.physics.arcade.moveToXY(enemy, path[1].x* 32 +8,path[1].y* 32 + 8, 100);
+      var pathx = path[1].x* 32 + 8,
+          pathy = path[1].y* 32 + 8;
+      game.physics.arcade.moveToXY(enemy, pathx, pathy , 100);
     }
   });
 
   pathfinder.preparePathCalculation(
       [layer.getTileX(enemy.x), layer.getTileY(enemy.y) ],
-      [tilex, tiley]);
+      [layer.getTileX(player.x), layer.getTileY(player.y) ]);
   pathfinder.calculatePath();
 }
 
@@ -85,22 +98,20 @@ function update() {
   player.body.velocity.set(0);
 
   if (cursors.left.isDown) {
-      player.body.velocity.x = -100;
+      player.body.velocity.x = -player.speed;
   }
   else if (cursors.right.isDown) {
-      player.body.velocity.x = 100;
+      player.body.velocity.x = player.speed;
   }
   else if (cursors.up.isDown) {
-      player.body.velocity.y = -100;
+      player.body.velocity.y = -player.speed;
   }
   else if (cursors.down.isDown) {
-      player.body.velocity.y = 100;
+      player.body.velocity.y = player.speed;
   }
-  if ( test== true) {
-    blocked = true;
-    findPathTo(layer.getTileX(player.x), layer.getTileY(player.y));
-    //test = false;
-  }
+  enemies.forEach(function(enemy){
+    findPathToPlayer(enemy);
+  });
 }
 
 function render() {
