@@ -8,6 +8,8 @@ var cursors;
 var pathfinder;
 var shadowTexture;
 var lightSprite;
+var fogTexture;
+var fogSprite;
 
 
 function preload() {
@@ -69,12 +71,15 @@ function create() {
 
   cursors = game.input.keyboard.createCursorKeys();
 
-  //layer2 = map.create('level2',  19, 24, 32, 32);
   shadowTexture = game.make.bitmapData(game.width, game.height);
-  //layer2.loadTexture(shadowTexture);
-  //layer2.blendMode = Phaser.blendModes.MULTIPLY;
   lightSprite = game.add.image(0,0, shadowTexture);
   lightSprite.blendMode = Phaser.blendModes.MULTIPLY;
+
+  fogTexture = game.make.bitmapData(game.width, game.height);
+  fogSprite = game.add.image(0,0, fogTexture);
+  fogSprite.blendMode = Phaser.blendModes.MULTIPLY;
+  fogTexture.context.fillStyle = 'rgb(0, 0, 0)';
+  fogTexture.context.fillRect(0, 0, game.width, game.height);
   
 }
 
@@ -107,20 +112,29 @@ function findPathToPlayer(enemy) {
 }
 function updateShadowTexture() {
 
-    shadowTexture.context.fillStyle = 'rgb(0, 0, 0)';
-    shadowTexture.context.fillRect(0, 0, game.width, game.height);
+    shadowTexture.copy(fogTexture);
 
     // Draw circle of light
     shadowTexture.context.beginPath();
     shadowTexture.context.fillStyle = 'rgb(255, 255, 255)';
     shadowTexture.context.arc(player.x, player.y,
         100, 0, Math.PI*2);
-    //console.log(player.x, player.y);
     shadowTexture.context.fill();
 
     // This just tells the engine it should update the texture cache
     shadowTexture.dirty = true;
-    //layer2.loadTexture(shadowTexture);
+};
+function updateFogTexture() {
+
+    // Draw circle of light
+    fogTexture.context.beginPath();
+    fogTexture.context.fillStyle = 'rgb(100, 100, 100)';
+    fogTexture.context.arc(player.x, player.y,
+        100, 0, Math.PI*2);
+    fogTexture.context.fill();
+
+    // This just tells the engine it should update the texture cache
+    fogTexture.dirty = true;
 };
 
 
@@ -142,14 +156,10 @@ function update() {
       player.body.velocity.y = player.speed;
   }
   enemies.forEach(function(enemy){
-    //findPathToPlayer(enemy);
+    findPathToPlayer(enemy);
   });
+  updateFogTexture();
   updateShadowTexture();
-  //mask.clear();
-  //mask.beginFill(0xffffff);
-  //mask.drawCircle(0,0, 100 + game.rnd.integerInRange(1,10));
-  //mask.x = player.x;
-  //mask.y = player.y;
 }
 
 function render() {
