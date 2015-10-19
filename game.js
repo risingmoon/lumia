@@ -6,7 +6,9 @@ var layer;
 var player;
 var cursors;
 var pathfinder;
-var mask;
+var shadowTexture;
+var lightSprite;
+
 
 function preload() {
   game.load.tilemap('map', 'level1.csv', null, Phaser.Tilemap.CSV);
@@ -17,6 +19,7 @@ var enemies;
 function create() {
 
   game.stage.backgroundColor = '#2d2d2d';
+  // 24 x 19
   map = game.add.tilemap('map', 32, 32);
   tileset = game.make.bitmapData(32, 64);
   tileset.rect(0, 0, 32, 32, '#a52a2a');
@@ -26,6 +29,7 @@ function create() {
   map.addTilesetImage('tiles', tileset);
   layer = map.createLayer(0);
   map.setCollision(1);
+
 
   var walkables = [0];
   pathfinder = game.plugins.add(Phaser.Plugin.PathFinderPlugin);
@@ -46,10 +50,7 @@ function create() {
   player.speed = 100;
   game.camera.follow(player);
 
-  mask = game.add.graphics(0, 0);
-  mask.beginFill(0xffffff);
-  mask.drawCircle(0,0, 100);
-  layer.mask = mask;
+  
 
   //var enemy_bmd = game.add.bitmapData(16, 16);
   //enemy_bmd.circle(8, 8, 8, "#008000");
@@ -67,6 +68,14 @@ function create() {
   enemies.create(32 * 4, 32 * 14, enemy_bmd);
 
   cursors = game.input.keyboard.createCursorKeys();
+
+  //layer2 = map.create('level2',  19, 24, 32, 32);
+  shadowTexture = game.make.bitmapData(game.width, game.height);
+  //layer2.loadTexture(shadowTexture);
+  //layer2.blendMode = Phaser.blendModes.MULTIPLY;
+  lightSprite = game.add.image(0,0, shadowTexture);
+  lightSprite.blendMode = Phaser.blendModes.MULTIPLY;
+  
 }
 
 function findPathToPlayer(enemy) {
@@ -98,31 +107,20 @@ function findPathToPlayer(enemy) {
 }
 function updateShadowTexture() {
 
-//    // Draw shadow
-//    layer.context.fillStyle = 'rgb(100, 100, 100)';
-//    layer.context.fillRect(0, 0, game.width, game.height);
-//
-//    // Iterate through each of the lights and draw the glow
-//    // Randomly change the radius each frame
-//    //var radius = LIGHT_RADIUS + this.game.rnd.integerInRange(1,10);
-//    var radius = 100 + game.rnd.integerInRange(1,10);
-//
-//    // Draw circle of light with a soft edge
-//    //var gradient =
-//    //    layer.context.createRadialGradient(
-//    //        player.x, player.y, 100* 0.75,
-//    //        player.x, player.y, radius);
-//    //gradient.addColorStop(0, 'rgba(255, 255, 255, 1.0)');
-//    //gradient.addColorStop(1, 'rgba(255, 255, 255, 0.0)');
-//
-//    layer.context.beginPath();
-//    //layer.context.fillStyle = gradient;
-//    layer.context.fillStyle = 'rgb(100,100,100)';
-//    layer.context.arc(player.x, player.y, 100, 0, Math.PI*2);
-//    //layer.context.arc(game.input.activePointer.x, game.input.activePointer.y, 100, 0, Math.PI*2);
-//    layer.context.fill();
-//    layer.dirty = true;
+    shadowTexture.context.fillStyle = 'rgb(0, 0, 0)';
+    shadowTexture.context.fillRect(0, 0, game.width, game.height);
 
+    // Draw circle of light
+    shadowTexture.context.beginPath();
+    shadowTexture.context.fillStyle = 'rgb(255, 255, 255)';
+    shadowTexture.context.arc(player.x, player.y,
+        100, 0, Math.PI*2);
+    //console.log(player.x, player.y);
+    shadowTexture.context.fill();
+
+    // This just tells the engine it should update the texture cache
+    shadowTexture.dirty = true;
+    //layer2.loadTexture(shadowTexture);
 };
 
 
@@ -146,12 +144,12 @@ function update() {
   enemies.forEach(function(enemy){
     //findPathToPlayer(enemy);
   });
-  //updateShadowTexture();
-  mask.clear();
-  mask.beginFill(0xffffff);
-  mask.drawCircle(0,0, 100 + game.rnd.integerInRange(1,10));
-  mask.x = player.x;
-  mask.y = player.y;
+  updateShadowTexture();
+  //mask.clear();
+  //mask.beginFill(0xffffff);
+  //mask.drawCircle(0,0, 100 + game.rnd.integerInRange(1,10));
+  //mask.x = player.x;
+  //mask.y = player.y;
 }
 
 function render() {
