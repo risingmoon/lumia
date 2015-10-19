@@ -52,8 +52,6 @@ function create() {
   player.speed = 100;
   game.camera.follow(player);
 
-  
-
   //var enemy_bmd = game.add.bitmapData(16, 16);
   //enemy_bmd.circle(8, 8, 8, "#008000");
   //enemy = game.add.sprite(32* 14, 32* 9, enemy_bmd);
@@ -71,15 +69,17 @@ function create() {
 
   cursors = game.input.keyboard.createCursorKeys();
 
+
   shadowTexture = game.make.bitmapData(game.width, game.height);
   lightSprite = game.add.image(0,0, shadowTexture);
   lightSprite.blendMode = Phaser.blendModes.MULTIPLY;
+  shadowTexture.context.fillStyle = 'rgb(0, 0, 0)';
+  shadowTexture.context.fillRect(0, 0, game.width, game.height);
 
   fogTexture = game.make.bitmapData(game.width, game.height);
   fogSprite = game.add.image(0,0, fogTexture);
   fogSprite.blendMode = Phaser.blendModes.MULTIPLY;
-  fogTexture.context.fillStyle = 'rgb(0, 0, 0)';
-  fogTexture.context.fillRect(0, 0, game.width, game.height);
+
   
 }
 
@@ -112,8 +112,6 @@ function findPathToPlayer(enemy) {
 }
 function updateShadowTexture() {
 
-    shadowTexture.copy(fogTexture);
-
     // Draw circle of light
     shadowTexture.context.beginPath();
     shadowTexture.context.fillStyle = 'rgb(255, 255, 255)';
@@ -126,9 +124,13 @@ function updateShadowTexture() {
 };
 function updateFogTexture() {
 
+    fogTexture.copy(shadowTexture);
+    fogTexture.context.fillStyle = 'rgb(100, 100, 100)';
+    fogTexture.context.fillRect(0, 0, game.width, game.height);
+
     // Draw circle of light
     fogTexture.context.beginPath();
-    fogTexture.context.fillStyle = 'rgb(100, 100, 100)';
+    fogTexture.context.fillStyle = 'rgb(255, 255, 255)';
     fogTexture.context.arc(player.x, player.y,
         100, 0, Math.PI*2);
     fogTexture.context.fill();
@@ -156,10 +158,10 @@ function update() {
       player.body.velocity.y = player.speed;
   }
   enemies.forEach(function(enemy){
-    findPathToPlayer(enemy);
+    //findPathToPlayer(enemy);
   });
-  updateFogTexture();
   updateShadowTexture();
+  updateFogTexture();
 }
 
 function render() {
