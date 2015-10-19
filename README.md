@@ -5,11 +5,10 @@ A top down avoidance game based in PhaserJS.
 ## Primary Goals
 
 - entrance/exit + winning condition
-- fog of war
-- enemy groups
 - torch meter
-- torch radius
 - torch stick (supply)
+- fog of war
+- torch flicker
 
 ## Secondary Features
 - explosives(gasoline)
@@ -19,6 +18,10 @@ A top down avoidance game based in PhaserJS.
 - stage
 - player and enemy generation
 - enemy pathfinding
+- enemy groups
+- torch radius
+- torch radius/flicker
+- field of view
 
 ## Ideas 
 - procedural generation

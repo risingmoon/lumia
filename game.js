@@ -6,6 +6,7 @@ var layer;
 var player;
 var cursors;
 var pathfinder;
+var mask;
 
 function preload() {
   game.load.tilemap('map', 'level1.csv', null, Phaser.Tilemap.CSV);
@@ -44,6 +45,11 @@ function create() {
   player.body.setSize(16,16);
   player.speed = 100;
   game.camera.follow(player);
+
+  mask = game.add.graphics(0, 0);
+  mask.beginFill(0xffffff);
+  mask.drawCircle(0,0, 100);
+  layer.mask = mask;
 
   //var enemy_bmd = game.add.bitmapData(16, 16);
   //enemy_bmd.circle(8, 8, 8, "#008000");
@@ -90,6 +96,34 @@ function findPathToPlayer(enemy) {
       [layer.getTileX(player.x), layer.getTileY(player.y) ]);
   pathfinder.calculatePath();
 }
+function updateShadowTexture() {
+
+//    // Draw shadow
+//    layer.context.fillStyle = 'rgb(100, 100, 100)';
+//    layer.context.fillRect(0, 0, game.width, game.height);
+//
+//    // Iterate through each of the lights and draw the glow
+//    // Randomly change the radius each frame
+//    //var radius = LIGHT_RADIUS + this.game.rnd.integerInRange(1,10);
+//    var radius = 100 + game.rnd.integerInRange(1,10);
+//
+//    // Draw circle of light with a soft edge
+//    //var gradient =
+//    //    layer.context.createRadialGradient(
+//    //        player.x, player.y, 100* 0.75,
+//    //        player.x, player.y, radius);
+//    //gradient.addColorStop(0, 'rgba(255, 255, 255, 1.0)');
+//    //gradient.addColorStop(1, 'rgba(255, 255, 255, 0.0)');
+//
+//    layer.context.beginPath();
+//    //layer.context.fillStyle = gradient;
+//    layer.context.fillStyle = 'rgb(100,100,100)';
+//    layer.context.arc(player.x, player.y, 100, 0, Math.PI*2);
+//    //layer.context.arc(game.input.activePointer.x, game.input.activePointer.y, 100, 0, Math.PI*2);
+//    layer.context.fill();
+//    layer.dirty = true;
+
+};
 
 
 function update() {
@@ -110,8 +144,14 @@ function update() {
       player.body.velocity.y = player.speed;
   }
   enemies.forEach(function(enemy){
-    findPathToPlayer(enemy);
+    //findPathToPlayer(enemy);
   });
+  //updateShadowTexture();
+  mask.clear();
+  mask.beginFill(0xffffff);
+  mask.drawCircle(0,0, 100 + game.rnd.integerInRange(1,10));
+  mask.x = player.x;
+  mask.y = player.y;
 }
 
 function render() {
