@@ -21,6 +21,13 @@ var enemies;
 function create() {
 
   game.stage.backgroundColor = '#2d2d2d';
+
+  //FPS
+  //game.time.advancedTiming = true;
+  //game.fpsProblemNotifier.add(function() {
+  //   game.time.desiredFps = 40;
+  //});
+
   // 24 x 19
   map = game.add.tilemap('map', 32, 32);
   tileset = game.make.bitmapData(32, 64);
@@ -45,7 +52,7 @@ function create() {
 
   var player_bmd = game.add.bitmapData(16,16);
   player_bmd.circle(8, 8, 8, "#ff0000");
-  player = game.add.sprite(32 * 3, 32 * 3, player_bmd); 
+  player = game.add.sprite(32 * 3, 32 * 2.5, player_bmd); 
   player.anchor.setTo(0.5, 0.5);
   game.physics.enable(player, Phaser.Physics.ARCADE);
   player.body.setSize(16,16);
@@ -130,7 +137,18 @@ function updateFogTexture() {
 
     // Draw circle of light
     fogTexture.context.beginPath();
-    fogTexture.context.fillStyle = 'rgb(255, 255, 255)';
+
+    // Random radius
+    var radius = 100 + game.rnd.integerInRange(1,10);
+
+    //Gradient
+    var gradient = fogTexture.context.createRadialGradient(
+        player.x, player.y, radius * 0.75,
+        player.x, player.y, radius);
+    gradient.addColorStop(0, 'rgba(255, 255, 255, 1.0)');
+    gradient.addColorStop(1, 'rgba(255, 255, 255, 0.0)');
+    fogTexture.context.fillStyle = gradient;
+    //fogTexture.context.fillStyle = 'rgb(255, 255, 255)';
     fogTexture.context.arc(player.x, player.y,
         100, 0, Math.PI*2);
     fogTexture.context.fill();
@@ -165,6 +183,8 @@ function update() {
 }
 
 function render() {
+  //game.debug.text('render FPS: ' + (game.time.fps || '--') , 2, 14, "#00ff00");
+
   //game.debug.text( "This is debug text", 100, 380 );
   //pathpoints.forEach(function(point){
   //  game.debug.geom( point, 'rgba(255, 255, 0, 1)');
