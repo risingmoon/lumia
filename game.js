@@ -227,11 +227,20 @@ function update() {
   // Ray casting!
   // Cast rays at intervals in a large circle around the light.
   // Save all of the intersection points or ray end points if there was no intersection.
+  // Random radius
+  var radius = 100 + game.rnd.integerInRange(1,10);
+
+  //Gradient
+  var gradient = bitmap.context.createRadialGradient(
+      x, y, radius * 0.75,
+      x, y, radius);
+  gradient.addColorStop(0, 'rgba(255, 255, 255, 1.0)');
+  gradient.addColorStop(1, 'rgba(255, 255, 255, 0.0)');
   var points = [];
   for(var a = 0; a < Math.PI * 2; a += Math.PI/360) {
       // Create a ray from the light to a point on the circle
       var ray = new Phaser.Line(x, y,
-          x + Math.cos(a) * 1000, y + Math.sin(a) * 1000);
+          x + Math.cos(a) * radius, y + Math.sin(a) * radius);
 
       // Check if the ray intersected any walls
       var intersect = getWallIntersection(ray);
@@ -249,7 +258,8 @@ function update() {
   // the white color will allow the full color of the background to
   // shine through.
   bitmap.context.beginPath();
-  bitmap.context.fillStyle = 'rgb(255, 255, 255)';
+  //bitmap.context.fillStyle = 'rgb(255, 255, 255)';
+  bitmap.context.fillStyle = gradient;
   bitmap.context.moveTo(points[0].x, points[0].y);
   for(var i = 0; i < points.length; i++) {
       bitmap.context.lineTo(points[i].x, points[i].y);
