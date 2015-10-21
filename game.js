@@ -10,6 +10,7 @@ var shadowTexture;
 var lightSprite;
 var fogTexture;
 var fogSprite;
+var bitmap
 
 
 function preload() {
@@ -77,17 +78,21 @@ function create() {
   cursors = game.input.keyboard.createCursorKeys();
 
 
-  shadowTexture = game.make.bitmapData(game.width, game.height);
-  lightSprite = game.add.image(0,0, shadowTexture);
-  lightSprite.blendMode = Phaser.blendModes.MULTIPLY;
-  shadowTexture.context.fillStyle = 'rgb(0, 0, 0)';
-  shadowTexture.context.fillRect(0, 0, game.width, game.height);
+  //shadowTexture = game.make.bitmapData(game.width, game.height);
+  //lightSprite = game.add.image(0,0, shadowTexture);
+  //lightSprite.blendMode = Phaser.blendModes.MULTIPLY;
+  //shadowTexture.context.fillStyle = 'rgb(0, 0, 0)';
+  //shadowTexture.context.fillRect(0, 0, game.width, game.height);
 
-  fogTexture = game.make.bitmapData(game.width, game.height);
-  fogSprite = game.add.image(0,0, fogTexture);
-  fogSprite.blendMode = Phaser.blendModes.MULTIPLY;
+  //fogTexture = game.make.bitmapData(game.width, game.height);
+  //fogSprite = game.add.image(0,0, fogTexture);
+  //fogSprite.blendMode = Phaser.blendModes.MULTIPLY;
 
-  
+  bitmap = game.add.bitmapData(game.width, game.height);
+  bitmap.context.fillStyle = 'rgb(255, 255, 255)';
+  bitmap.context.strokeStyle = 'rgb(255, 255, 255)';
+  var lightBitmap = game.add.image(0, 0, bitmap);  
+  lightBitmap.blendMode = Phaser.blendModes.MULTIPLY;
 }
 
 function findPathToPlayer(enemy) {
@@ -156,6 +161,41 @@ function updateFogTexture() {
     // This just tells the engine it should update the texture cache
     fogTexture.dirty = true;
 };
+function getWallIntersection(ray) {
+    var distanceToWall = Number.POSITIVE_INFINITY;
+    var closestIntersection = null;
+
+    // For each of the walls...
+    var tiles = layer.getRayCastTiles(ray, 4, true);
+    tiles.forEach(function(tile) {
+        // Create an array of lines that represent the four edges of each wall
+        var lines = [
+            new Phaser.Line(tile.worldX, tile.worldY, tile.worldX + tile.width, tile.worldY),
+            new Phaser.Line(tile.worldX, tile.worldY, tile.worldX, tile.worldY + tile.height),
+            new Phaser.Line(tile.worldX + tile.width, tile.worldY,
+                tile.worldX + tile.width, tile.worldY + tile.height),
+            new Phaser.Line(tile.worldX, tile.worldY + tile.height,
+                tile.worldX + tile.width, tile.worldY + tile.height)
+        ];
+
+        // Test each of the edges in this wall against the ray.
+        // If the ray intersects any of the edges then the wall must be in the way.
+        for(var i = 0; i < lines.length; i++) {
+            var intersect = Phaser.Line.intersects(ray, lines[i]);
+            if (intersect) {
+                // Find the closest intersection
+                distance =
+                    game.math.distance(ray.start.x, ray.start.y, intersect.x, intersect.y);
+                if (distance < distanceToWall) {
+                    distanceToWall = distance;
+                    closestIntersection = intersect;
+                }
+            }
+        }
+    }, this);
+
+    return closestIntersection;
+};
 
 
 function update() {
@@ -178,8 +218,48 @@ function update() {
   enemies.forEach(function(enemy){
     //findPathToPlayer(enemy);
   });
-  updateShadowTexture();
-  updateFogTexture();
+  //updateShadowTexture();
+  //updateFogTexture();
+  bitmap.context.fillStyle = 'rgb(0, 0, 0)';
+  bitmap.context.fillRect(0, 0, game.width, game.height);
+  var x = game.input.activePointer.x;
+  var y = game.input.activePointer.y;
+  // Ray casting!
+  // Cast rays at intervals in a large circle around the light.
+  // Save all of the intersection points or ray end points if there was no intersection.
+  var points = [];
+  for(var a = 0; a < Math.PI * 2; a += Math.PI/360) {
+      // Create a ray from the light to a point on the circle
+      var ray = new Phaser.Line(x, y,
+          x + Math.cos(a) * 1000, y + Math.sin(a) * 1000);
+
+      // Check if the ray intersected any walls
+      var intersect = getWallIntersection(ray);
+
+      // Save the intersection or the end of the ray
+      if (intersect) {
+          points.push(intersect);
+      } else {
+          points.push(ray.end);
+      }
+  }
+
+  // Connect the dots and fill in the shape, which are cones of light,
+  // with a bright white color. When multiplied with the background,
+  // the white color will allow the full color of the background to
+  // shine through.
+  bitmap.context.beginPath();
+  bitmap.context.fillStyle = 'rgb(255, 255, 255)';
+  bitmap.context.moveTo(points[0].x, points[0].y);
+  for(var i = 0; i < points.length; i++) {
+      bitmap.context.lineTo(points[i].x, points[i].y);
+  }
+  bitmap.context.closePath();
+  bitmap.context.fill();
+
+  // This just tells the engine it should update the texture cache
+  bitmap.dirty = true;
+  
 }
 
 function render() {
