@@ -11,6 +11,9 @@ var lightSprite;
 var fogTexture;
 var fogSprite;
 var bitmap
+var gradient;
+var points;
+var radius;
 
 
 function preload() {
@@ -78,21 +81,21 @@ function create() {
   cursors = game.input.keyboard.createCursorKeys();
 
 
-  //shadowTexture = game.make.bitmapData(game.width, game.height);
-  //lightSprite = game.add.image(0,0, shadowTexture);
-  //lightSprite.blendMode = Phaser.blendModes.MULTIPLY;
-  //shadowTexture.context.fillStyle = 'rgb(0, 0, 0)';
-  //shadowTexture.context.fillRect(0, 0, game.width, game.height);
+  shadowTexture = game.make.bitmapData(game.width, game.height);
+  lightSprite = game.add.image(0,0, shadowTexture);
+  lightSprite.blendMode = Phaser.blendModes.MULTIPLY;
+  shadowTexture.context.fillStyle = 'rgb(0, 0, 0)';
+  shadowTexture.context.fillRect(0, 0, game.width, game.height);
 
-  //fogTexture = game.make.bitmapData(game.width, game.height);
-  //fogSprite = game.add.image(0,0, fogTexture);
-  //fogSprite.blendMode = Phaser.blendModes.MULTIPLY;
+  fogTexture = game.make.bitmapData(game.width, game.height);
+  fogSprite = game.add.image(0,0, fogTexture);
+  fogSprite.blendMode = Phaser.blendModes.MULTIPLY;
 
-  bitmap = game.add.bitmapData(game.width, game.height);
-  bitmap.context.fillStyle = 'rgb(255, 255, 255)';
-  bitmap.context.strokeStyle = 'rgb(255, 255, 255)';
-  var lightBitmap = game.add.image(0, 0, bitmap);  
-  lightBitmap.blendMode = Phaser.blendModes.MULTIPLY;
+  //bitmap = game.add.bitmapData(game.width, game.height);
+  //bitmap.context.fillStyle = 'rgb(255, 255, 255)';
+  //bitmap.context.strokeStyle = 'rgb(255, 255, 255)';
+  //var lightBitmap = game.add.image(0, 0, bitmap);  
+  //lightBitmap.blendMode = Phaser.blendModes.MULTIPLY;
 }
 
 function findPathToPlayer(enemy) {
@@ -122,44 +125,53 @@ function findPathToPlayer(enemy) {
       [layer.getTileX(player.x), layer.getTileY(player.y) ]);
   pathfinder.calculatePath();
 }
+
 function updateShadowTexture() {
 
-    // Draw circle of light
-    shadowTexture.context.beginPath();
-    shadowTexture.context.fillStyle = 'rgb(255, 255, 255)';
-    shadowTexture.context.arc(player.x, player.y,
-        100, 0, Math.PI*2);
-    shadowTexture.context.fill();
+  // Draw circle of light
+  shadowTexture.context.beginPath();
+  shadowTexture.context.fillStyle = 'rgb(255, 255, 255)';
+  //shadowTexture.context.arc(player.x, player.y,
+  //    100, 0, Math.PI*2);
+  shadowTexture.context.moveTo(points[0].x, points[0].y);
+  for(var i = 0; i < points.length; i++) {
+      shadowTexture.context.lineTo(points[i].x, points[i].y);
+  }
+  shadowTexture.context.closePath();
+  shadowTexture.context.fill();
 
-    // This just tells the engine it should update the texture cache
-    shadowTexture.dirty = true;
+  // This just tells the engine it should update the texture cache
+  shadowTexture.dirty = true;
 };
 function updateFogTexture() {
 
-    fogTexture.copy(shadowTexture);
-    fogTexture.context.fillStyle = 'rgb(100, 100, 100)';
-    fogTexture.context.fillRect(0, 0, game.width, game.height);
+  fogTexture.copy(shadowTexture);
+  fogTexture.context.fillStyle = 'rgb(100, 100, 100)';
+  fogTexture.context.fillRect(0, 0, game.width, game.height);
 
-    // Draw circle of light
-    fogTexture.context.beginPath();
+  // Draw circle of light
+  fogTexture.context.beginPath();
 
-    // Random radius
-    var radius = 100 + game.rnd.integerInRange(1,10);
+  // Random radius
+  var radius = 100 + game.rnd.integerInRange(1,10);
 
-    //Gradient
-    var gradient = fogTexture.context.createRadialGradient(
-        player.x, player.y, radius * 0.75,
-        player.x, player.y, radius);
-    gradient.addColorStop(0, 'rgba(255, 255, 255, 1.0)');
-    gradient.addColorStop(1, 'rgba(255, 255, 255, 0.0)');
-    fogTexture.context.fillStyle = gradient;
-    //fogTexture.context.fillStyle = 'rgb(255, 255, 255)';
-    fogTexture.context.arc(player.x, player.y,
-        100, 0, Math.PI*2);
-    fogTexture.context.fill();
+  //Gradient
+  var gradient = fogTexture.context.createRadialGradient(
+      player.x, player.y, radius * 0.75,
+      player.x, player.y, radius);
+  gradient.addColorStop(0, 'rgba(255, 255, 255, 1.0)');
+  gradient.addColorStop(1, 'rgba(255, 255, 255, 0.0)');
+  fogTexture.context.fillStyle = gradient;
+  //fogTexture.context.fillStyle = 'rgb(255, 255, 255)';
+  fogTexture.context.moveTo(points[0].x, points[0].y);
+  for(var i = 0; i < points.length; i++) {
+      fogTexture.context.lineTo(points[i].x, points[i].y);
+  }
+  fogTexture.context.closePath();
+  fogTexture.context.fill();
 
-    // This just tells the engine it should update the texture cache
-    fogTexture.dirty = true;
+  // This just tells the engine it should update the texture cache
+  fogTexture.dirty = true;
 };
 function getWallIntersection(ray) {
     var distanceToWall = Number.POSITIVE_INFINITY;
@@ -218,29 +230,26 @@ function update() {
   enemies.forEach(function(enemy){
     //findPathToPlayer(enemy);
   });
-  //updateShadowTexture();
-  //updateFogTexture();
-  bitmap.context.fillStyle = 'rgb(0, 0, 0)';
-  bitmap.context.fillRect(0, 0, game.width, game.height);
-  var x = game.input.activePointer.x;
-  var y = game.input.activePointer.y;
+  getRayCastPoints();
+  updateShadowTexture();
+  updateFogTexture();
+
+
+  
+}
+
+function getRayCastPoints() {
   // Ray casting!
   // Cast rays at intervals in a large circle around the light.
   // Save all of the intersection points or ray end points if there was no intersection.
   // Random radius
-  var radius = 100 + game.rnd.integerInRange(1,10);
+  radius = 100 + game.rnd.integerInRange(1,10);
 
-  //Gradient
-  var gradient = bitmap.context.createRadialGradient(
-      x, y, radius * 0.75,
-      x, y, radius);
-  gradient.addColorStop(0, 'rgba(255, 255, 255, 1.0)');
-  gradient.addColorStop(1, 'rgba(255, 255, 255, 0.0)');
-  var points = [];
+  points = [];
   for(var a = 0; a < Math.PI * 2; a += Math.PI/360) {
       // Create a ray from the light to a point on the circle
-      var ray = new Phaser.Line(x, y,
-          x + Math.cos(a) * radius, y + Math.sin(a) * radius);
+      var ray = new Phaser.Line(player.x, player.y,
+          player.x + Math.cos(a) * radius, player.y + Math.sin(a) * radius);
 
       // Check if the ray intersected any walls
       var intersect = getWallIntersection(ray);
@@ -252,24 +261,6 @@ function update() {
           points.push(ray.end);
       }
   }
-
-  // Connect the dots and fill in the shape, which are cones of light,
-  // with a bright white color. When multiplied with the background,
-  // the white color will allow the full color of the background to
-  // shine through.
-  bitmap.context.beginPath();
-  //bitmap.context.fillStyle = 'rgb(255, 255, 255)';
-  bitmap.context.fillStyle = gradient;
-  bitmap.context.moveTo(points[0].x, points[0].y);
-  for(var i = 0; i < points.length; i++) {
-      bitmap.context.lineTo(points[i].x, points[i].y);
-  }
-  bitmap.context.closePath();
-  bitmap.context.fill();
-
-  // This just tells the engine it should update the texture cache
-  bitmap.dirty = true;
-  
 }
 
 function render() {
