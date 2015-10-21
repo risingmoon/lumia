@@ -15,6 +15,11 @@ var gradient;
 var points;
 var radius;
 
+var spawnXY = [
+  [ 32 * 14, 32 * 9 ],
+  [ 32 * 4, 32 * 14 ],
+  [ 32 * 20, 32 * 2 ],
+  [ 32 * 12, 32 *14 ]];
 
 function preload() {
   game.load.tilemap('map', 'level1.csv', null, Phaser.Tilemap.CSV);
@@ -61,14 +66,7 @@ function create() {
   light.anchor.setTo(0.5, 0.5);
   game.physics.enable(light, Phaser.Physics.ARCADE);
   light.body.setSize(32, 32);
-  light.visible = false;
-
-
-  //var enemy_bmd = game.add.bitmapData(16, 16);
-  //enemy_bmd.circle(8, 8, 8, "#008000");
-  //enemy = game.add.sprite(32* 14, 32* 9, enemy_bmd);
-  //game.physics.enable(enemy, Phaser.Physics.ARCADE);
-  //enemy.body.setSize(16, 16);
+  light.visible = true;
 
   //Group creation
   enemies = game.add.group();
@@ -76,9 +74,11 @@ function create() {
   enemies.physicsBodyType = Phaser.Physics.ARCADE;
   var enemy_bmd = game.add.bitmapData(16, 16);
   enemy_bmd.circle(8, 8, 8, "#008000");
-  enemies.create(32 * 14, 32 * 9, enemy_bmd);
+  //enemies.create(32 * 4, 32 * 2, enemy_bmd);
+  //enemies.create(32 * 14, 32 * 9, enemy_bmd);
   enemies.create(32 * 4, 32 * 14, enemy_bmd);
-  enemies.create(32 * 4.5, 32 * 2, enemy_bmd);
+  enemies.create(32 * 20, 32 * 2, enemy_bmd);
+  enemies.create(32 * 12, 32 * 14, enemy_bmd);
 
   cursors = game.input.keyboard.createCursorKeys();
 
@@ -101,6 +101,7 @@ function update() {
   game.physics.arcade.collide(player,layer);
 
   player.body.velocity.set(0);
+  light.body.velocity.set(0);
 
   if (cursors.left.isDown) {
       player.body.velocity.x = -player.speed;
@@ -114,6 +115,8 @@ function update() {
   else if (cursors.down.isDown) {
       player.body.velocity.y = player.speed;
   }
+  light.x = player.x;
+  light.y = player.y;
   findPathToPlayer();
   getRayCastPoints();
   updateShadowTexture();
@@ -132,6 +135,8 @@ function enemyHit(light, enemy){
   console.log("ENEMY KILL!");
   enemy.kill();
   //enemy.destroy();
+  spawn = spawnXY[game.rnd.integerInRange(0,spawnXY.length-1)];
+  enemy.reset(spawn[0], spawn[1]);
   if (radius > 10){
     player.torch -= 10;
   } else {
@@ -142,7 +147,7 @@ function enemyHit(light, enemy){
 
 function updateTorch() {
   if (player.torch >  0) {
-    player.torch -= 10;
+    player.torch -= 1;
   }
 }
 function findPathToPlayer() {
