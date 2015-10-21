@@ -23,6 +23,7 @@ A top down avoidance game based in PhaserJS.
 - fog of war
 - torch flicker
 - add fps debugger
+- raycasting
 
 ## Ideas 
 - procedural generation
@@ -31,7 +32,6 @@ A top down avoidance game based in PhaserJS.
 - torch attacks (decrease stamina)
 - lighting up torch (increase probability)
 - traps/Doors
-- raycasting
 - upgradable weapons
 - harder paths reward reap
 - food (supply)
