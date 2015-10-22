@@ -38,3 +38,6 @@ A top down avoidance game based in PhaserJS.
 - running stamina (meter)
 - carrying stamine (meter)
 
+## Tutorials
+- http://gamedevelopment.tutsplus.com/tutorials/how-to-make-your-first-roguelike--gamedev-13677
+- http://www.zekechan.net/getting-started-html5-game-development-pong1/
