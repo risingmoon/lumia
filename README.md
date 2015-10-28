@@ -41,3 +41,4 @@ A top down avoidance game based in PhaserJS.
 ## Tutorials
 - http://gamedevelopment.tutsplus.com/tutorials/how-to-make-your-first-roguelike--gamedev-13677
 - http://www.zekechan.net/getting-started-html5-game-development-pong1/
+- http://blog.rusyninventions.com/2014/01/cellular-automated-caves-for-game-design/
